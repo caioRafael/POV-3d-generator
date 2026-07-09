@@ -1,5 +1,6 @@
 import { execFile } from "child_process"
 import { promisify } from "util"
+import { mkdir } from "fs/promises"
 import path from "path"
 
 const execFileAsync = promisify(execFile)
@@ -17,7 +18,10 @@ export async function POST(request: Request) {
     } = await request.json()
 
     const scadFile = path.join(process.cwd(), "openscad", "name.scad")
-    const outputFile = path.join(process.cwd(), "openscad", "preview.stl")
+    const outputDir = path.join(process.cwd(), "public", "openscad")
+    const outputFile = path.join(outputDir, "preview.stl")
+
+    await mkdir(outputDir, { recursive: true })
 
     const definitions = {
         name_text: nameText,
@@ -39,9 +43,5 @@ export async function POST(request: Request) {
 
     await execFileAsync(OPENSCAD, args)
 
-    const stl = await import("fs/promises").then((fs) => fs.readFile(outputFile))
-
-    return new Response(stl, {
-        headers: { "Content-Type": "application/stl" },
-    })
+    return Response.json({ url: "/openscad/preview.stl" })
 }

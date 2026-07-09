@@ -7,6 +7,7 @@ import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { usePreview } from "@/components/feature/preview-context"
 
 const parametersSchema = z.object({
     nameText: z.string().min(1, "Informe um texto"),
@@ -29,6 +30,7 @@ const defaultValues: Parameters = {
 }
 
 export function ParameterForm() {
+    const { refreshPreview } = usePreview()
     const {
         register,
         handleSubmit,
@@ -47,6 +49,8 @@ export function ParameterForm() {
 
         const result = await response.json()
         console.log(result)
+
+        refreshPreview()
     }
 
     return (
