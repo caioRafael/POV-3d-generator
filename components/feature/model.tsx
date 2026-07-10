@@ -1,17 +1,23 @@
 'use client'
 
-import { useLoader } from "@react-three/fiber";
-import { STLLoader } from "three/examples/jsm/Addons.js";
-import { usePreview } from "./preview-context";
+import { convertGeometry } from "@/lib/convert-geometry";
+import { createModel } from "@/models/cube";
+import { BufferGeometry, Color, Float32BufferAttribute } from "three";
 
 export default function Model() {
-    const { version } = usePreview();
-    const geometry = useLoader(STLLoader, `/openscad/preview.stl?v=${version}`);
+    const { positions, color } = convertGeometry(createModel())
 
+    const geometry = new BufferGeometry();
+    geometry.setAttribute('position', new Float32BufferAttribute(positions, 3));
     geometry.computeVertexNormals();
+
+    const materialColor = color
+        ? new Color(color[0], color[1], color[2])
+        : new Color("#cccccc");
+
     return (
         <mesh geometry={geometry}>
-            <meshStandardMaterial color="#cccccc" metalness={0.2} roughness={0.6} />
+            <meshStandardMaterial color={materialColor} metalness={0.2} roughness={0.6} />
         </mesh>
-    )
+    );
 }
